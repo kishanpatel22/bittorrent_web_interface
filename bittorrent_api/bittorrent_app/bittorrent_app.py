@@ -11,3 +11,8 @@ def index():
     db = get_db()
     return {'message':'hello world', 'name' : 'kishan patel'}
 
+
+@bp.route('/api/torrent_file', methods=['POST'])
+def torrent_file():
+    return request.form
+
