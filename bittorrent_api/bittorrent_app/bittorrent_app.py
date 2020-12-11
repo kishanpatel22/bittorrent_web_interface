@@ -6,7 +6,8 @@ from bittorrent_app.db import get_db
 
 bp = Blueprint('bittorrent_app', __name__)
 
-@bp.route('/')
+@bp.route('/api')
 def index():
-    return render_template('index.html', token='Hello react')
+    db = get_db()
+    return {'message':'hello world', 'name' : 'kishan patel'}
 
