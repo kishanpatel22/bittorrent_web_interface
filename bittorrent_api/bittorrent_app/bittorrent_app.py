@@ -1,18 +1,33 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for, current_app
 )
+
+import os
+import base64
+
 from werkzeug.exceptions import abort
 from bittorrent_app.db import get_db
 
+from bittorrent.client import *
+
 bp = Blueprint('bittorrent_app', __name__)
 
-@bp.route('/api')
+@bp.route('/bittorrent-api/')
 def index():
     db = get_db()
     return {'message':'hello world', 'name' : 'kishan patel'}
 
 
-@bp.route('/api/torrent_file', methods=['POST'])
+@bp.route('/bittorrent-api/torrent_file', methods=['POST'])
 def torrent_file():
-    return request.form
+    torrent_file = request.files['file']
+    dir_file_path = current_app.config['TORRENT_FILE_FOLDER']
+    torrent_file_path = os.path.join(dir_file_path, torrent_file.filename)
+    torrent_file.save(torrent_file_path)
+    
+    download_dir_path = current_app.config['TORRENT_DOWNLOAD_DIR_PATH']
+    kp_client = bittorrent_client({TORRENT_FILE_PATH : torrent_file_path,
+                                   DOWNLOAD_DIR_PATH : download_dir_path})
+
+    return 'Hello doing torrent file work'
 

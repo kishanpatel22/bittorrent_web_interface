@@ -76,12 +76,15 @@ class BittorrentForm extends React.Component {
 
     form_request(event) {
         event.preventDefault();
-        fetch('/api/torrent_file', {
-            method: 'post',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({
-                "file": this.state.file
-            })
+
+        /* extracting the data from the DOM */
+        var torrent_request_data = new FormData()
+        var torrent_file_data = document.getElementById('file').files[0];
+        torrent_request_data.append('file', torrent_file_data) 
+
+        fetch('/bittorrent-api/torrent_file', {
+            method: 'POST',
+            body: torrent_request_data
         }).then((response) => {
             if(response.ok) {
                 console.log(response)

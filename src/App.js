@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import BitTorrent from './Compenents/BitTorrent/BitTorrent'
+import BitTorrent from './Components/BitTorrent/BitTorrent'
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 
 /* We can write functions for creating HTML components
@@ -16,9 +16,9 @@ function App() {
         width       : '95%',
         margin      : 'auto'
     }
-    const [bittorrent, set_bittorrent] = useState([])
+    const [bittorrent, set_bittorrent] = useState([]);
     useEffect(() => {
-        fetch('/api').then(response => {
+        fetch('/bittorrent-api/').then(response => {
             if(response.ok) {
                 return response.json()
             }

@@ -22,5 +22,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+/bittorrent_api/bittorrent/torrent_logs/*.log
+/bittorrent_api/torrent_files/*.torrent
+
 __pycache__
 *.*.un~

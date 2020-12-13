@@ -9,6 +9,8 @@ def create_app(test_config=None):
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'bittorrent_data.sqlite'),
     )
+    app.config['TORRENT_FILE_FOLDER'] = './torrent_files/'
+    app.config['TORRENT_DOWNLOAD_DIR_PATH'] = './results/'
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
