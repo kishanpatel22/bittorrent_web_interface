@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import BitTorrent from './Components/BitTorrent/BitTorrent'
+import TorrentFile from './Components/TorrentFile/TorrentFile'
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 
 /* We can write functions for creating HTML components
@@ -7,29 +8,22 @@ import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
  * logic to the component is written before the return statement
  */
 
-
 /* functions can actually returns HTML code */
 function App() {
     /* logic part of the app component */
     const app_styles = {
         background  : '#000F23', 
-        width       : '95%',
-        margin      : 'auto'
+        margin      : '2%'
     }
-    const [bittorrent, set_bittorrent] = useState([]);
-    useEffect(() => {
-        fetch('/bittorrent-api/').then(response => {
-            if(response.ok) {
-                return response.json()
-            }
-        }).then(data => console.log(data))
-    }, []);
-
+    
     /* returns JSX  */
     return(
-        <div style={app_styles}>
-            <BitTorrent /> 
-        </div>
+        <Router>
+            <div style={app_styles}>
+                <Route exact path="/" component={BitTorrent} />
+                <Route exact path="/torrent_file/:torrent_id" component={TorrentFile} />
+            </div>
+        </Router>
     );
 }
 export default App

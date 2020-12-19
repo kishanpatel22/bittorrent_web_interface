@@ -18,8 +18,8 @@ def index():
     return {'message':'hello world', 'name' : 'kishan patel'}
 
 
-@bp.route('/bittorrent-api/torrent_file', methods=['POST'])
-def torrent_file():
+@bp.route('/bittorrent-api/torrent_file_reader', methods=['POST'])
+def torrent_file_reader():
     torrent_file = request.files['file']
     dir_file_path = current_app.config['TORRENT_FILE_FOLDER']
     torrent_file_path = os.path.join(dir_file_path, torrent_file.filename)
@@ -28,6 +28,12 @@ def torrent_file():
     download_dir_path = current_app.config['TORRENT_DOWNLOAD_DIR_PATH']
     kp_client = bittorrent_client({TORRENT_FILE_PATH : torrent_file_path,
                                    DOWNLOAD_DIR_PATH : download_dir_path})
+    
+    return kp_client.torrent_file_data()
 
-    return 'Hello doing torrent file work'
+
+@bp.route('/bittorrent-api/torrent_file/<int:torrent_id>', methods=['GET'])
+def torrent_file(torrent_id):
+    return {'message' : 'Get request !'}
+
 

@@ -92,5 +92,22 @@ class torrent():
         torrent_file_table.rows.append(['Client peer ID', str(self.peer_id)])
         
         return str(torrent_file_table)
+    
+    # Bitorrent web API
+    def data(self):
+        torrent_file_data = {
+            'File name'         : str(self.torrent_metadata.file_name),
+            'File size'         : str(round(self.torrent_metadata.file_size / (2 ** 20), 2)) + ' MB',
+            'Piece length'      : str(self.torrent_metadata.piece_length),
+            'Info hash'         : '20 Bytes file info hash value',
+            'Files'             : str(self.torrent_metadata.files),
+            'Number of Pieces'  : str(self.pieces_count),
+            'Client port'       : str(self.client_port),
+            'Client peer ID'    : str(self.peer_id)
+        } 
+        return torrent_file_data
+    
+
+
 
 

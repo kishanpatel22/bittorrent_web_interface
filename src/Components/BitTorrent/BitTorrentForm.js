@@ -1,4 +1,6 @@
 import React from 'react'
+import TorrentFileUploadProgressBar from './TorrentFileUploadProgressBar'
+import DownloadButton from './DownloadButton.js'
 
 const form_style = {
     display: 'block',
@@ -31,6 +33,8 @@ class BittorrentForm extends React.Component {
         /* styling for the Bittorrent */
         super(props);
         this.state = {file: '', 
+                      upload_status: null,
+                      torrent_id: 1,
                       button_style : {
                             padding: '10px 20px',
                             marginLeft: '20%',
@@ -72,45 +76,64 @@ class BittorrentForm extends React.Component {
 
     torrent_file_input(event) {
         this.setState({file: event.target.value});
+        this.setState({upload_status: 0});
     }
 
+    /* the form request for downloading the torrent file */
     form_request(event) {
         event.preventDefault();
-
+        
         /* extracting the data from the DOM */
         var torrent_request_data = new FormData()
         var torrent_file_data = document.getElementById('file').files[0];
         torrent_request_data.append('file', torrent_file_data) 
 
-        fetch('/bittorrent-api/torrent_file', {
+        this.setState({upload_status: 20});
+
+        fetch('/bittorrent-api/torrent_file_reader', {
             method: 'POST',
             body: torrent_request_data
-        }).then((response) => {
-            if(response.ok) {
-                console.log(response)
-            }
         })
+        .then((response) => {return response.json()})
+        .then((data) => {console.log(data)})
+        
+        this.setState({upload_status: 100});
     }
 
     render() {
-      return (
-        <form onSubmit={this.form_request} style={form_style}>
+        let UploadFileProgress = <span></span>;
+        let Button =  <button style={this.state.button_style}
+                              onMouseOver={this.button_event_mouse_over} 
+                              onMouseOut={this.button_event_mouse_out} type="submit"> 
+                              Upload Torrent File 
+                      </button>;
 
-            <input style={input_style} id="file" type="file" name="file" accept=".torrent" 
-                          onChange={this.torrent_file_input} 
-                          value={this.setState.file} required />
+        if(this.state.upload_status != null) {
+            UploadFileProgress = <TorrentFileUploadProgressBar progress={this.state.upload_status}  />;
+        }
+        
+        if(this.state.upload_status === 100) {
+            Button = <DownloadButton torrent_id={this.state.torrent_id} />
+        }
 
-            <label style={label_style} for="file"> Select file </label>
+        return (
+            <form onSubmit={this.form_request} style={form_style}>
 
-            <button style={this.state.button_style}
-                    onMouseOver={this.button_event_mouse_over} 
-                    onMouseOut={this.button_event_mouse_out} type="submit"> 
-                Download Torrent File 
-            </button>
-        </form>
-      );
+                <input style={input_style} id="file" type="file" name="file" accept=".torrent" 
+                              onChange={this.torrent_file_input} 
+                              value={this.setState.file} required />
+
+                <label style={label_style} for="file"> Select Torrent file </label>
+                
+                { Button }
+
+                { UploadFileProgress } 
+
+            </form>
+        );
     }
 }
 
 export default BittorrentForm;
+
 

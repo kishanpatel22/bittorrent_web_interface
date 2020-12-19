@@ -144,4 +144,17 @@ class bittorrent_client():
             self.download()
         if self.client_request['seeding'] is not None:
             self.seed()
+    
+
+    """
+        Bitorrent Web API torrent file reader response 
+    """
+    def torrent_file_data(self):
+        return self.torrent.data()
+
+
+
+
+
+
 
