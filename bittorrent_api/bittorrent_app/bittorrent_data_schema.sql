@@ -12,6 +12,7 @@ CREATE TABLE torrent (
 
 CREATE TABLE torrent_file_data (
     torrent_id INTEGER PRIMARY KEY,
+    tracker_list TEXT,
     file_name TEXT,
     file_size REAL,
     piece_length INTEGER,
@@ -25,8 +26,7 @@ CREATE TABLE torrent_file_data (
 CREATE TABLE tracker_list (
     torrent_id INTEGER,
     tracker_url TEXT,
-    connection_status INTEGER default 0 check(connection_status <= 2),
-    PRIMARY KEY (torrent_id, tracker_url),
+    connection_status TEXT,
     FOREIGN KEY (torrent_id) REFERENCES torrent (torrent_id) ON DELETE CASCADE
 );
 

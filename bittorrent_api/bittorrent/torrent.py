@@ -95,9 +95,14 @@ class torrent():
     
     # Bitorrent web API
     def data(self):
+        trackers_list  = self.torrent_metadata.trackers_url_list[0] + ' ('
+        trackers_list += str(len(self.torrent_metadata.trackers_url_list) - 1)
+        trackers_list += ' more trackers)'
+
         torrent_file_data = {
+            'tracker_list'      : trackers_list,
             'file_name'         : str(self.torrent_metadata.file_name),
-            'file_size'         : self.torrent_metadata.file_size / (2 ** 20),
+            'file_size'         : round(self.torrent_metadata.file_size / (2 ** 20), 2), 
             'piece_length'      : self.torrent_metadata.piece_length,
             'info_hash'         : '20 Bytes cryptic file info hash value',
             'num_pieces'        : self.pieces_count,
@@ -105,7 +110,5 @@ class torrent():
         } 
         return torrent_file_data
     
-
-
 
 

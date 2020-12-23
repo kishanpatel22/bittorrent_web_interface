@@ -70,9 +70,10 @@ class bittorrent_client():
         
         self.db.execute("""
             insert into torrent_file_data
-            (torrent_id, file_name, file_size, piece_length, info_hash, 
-            num_pieces, client_peer_id) values (?, ?, ?, ?, ?, ?, ?)
+            (torrent_id, tracker_list, file_name, file_size, piece_length, info_hash, 
+            num_pieces, client_peer_id) values (?, ?, ?, ?, ?, ?, ?, ?)
             """, (self.torrent_id, 
+                  torrent_file_data['tracker_list'],
                   torrent_file_data['file_name'], 
                   torrent_file_data['file_size'],
                   torrent_file_data['piece_length'],
@@ -170,7 +171,12 @@ class bittorrent_client():
         if self.client_request['seeding'] is not None:
             self.seed()
     
-
+    """
+        Web API function call for downloading
+    """
+    def start_downloading(self):
+        # first thing is to contact the trackers        
+        self.contact_trackers() 
 
 
 

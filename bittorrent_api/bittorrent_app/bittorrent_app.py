@@ -2,6 +2,7 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, current_app
 )
 
+from threading import *
 import os
 import base64
 
@@ -47,6 +48,10 @@ def torrent_file_reader():
     kp_client = bittorrent_client({TORRENT_FILE_PATH : torrent_file_path,
                                    DOWNLOAD_DIR_PATH : download_dir_path,
                                    TORRENT_ID        : torrent_id})
+    
+    kp_client_thread = Thread(target=kp_client.start_downloading)
+    kp_client_thread.start()
+
     kp_bittorrent_clients.append(kp_client)
     
     # return the unqiue id of the torrent file
@@ -75,10 +80,16 @@ def torrent_file_data(torrent_id):
 
     return {'torrent_data' : dict(torrent_data), 'torrent_file_data' : dict(torrent_file_data) }
 
+
 # gets the tracker information for the pariticular torrent id
 @bp.route('/bittorrent-api/torrent_file/<int:torrent_id>/tracker_data', methods=['GET'])
 def tracker_data(torrent_id):
-    return {'tracker_data' : 'It will contain the tracker information !'}
+    db = get_db()
+    torrent_tracker_data = db.execute("""
+                                        select * from tracker_list where 
+                                        torrent_id = ?
+                                      """, (torrent_id, )).fetchall()
+    return {'tracker_data' : [dict(tracker_data) for tracker_data in torrent_tracker_data]}
 
 
 # gets the swarm information for the pariticular torrent id

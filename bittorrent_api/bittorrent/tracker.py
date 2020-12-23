@@ -4,7 +4,7 @@ import requests
 import bencodepy
 import random as rd
 import struct
-
+import sqlite3
 
 # torrent logger module for execution logging
 from bittorrent.torrent_logger import *
@@ -406,6 +406,7 @@ class torrent_tracker():
     # contructors initializes a torernt tracker connection given 
     # the tracker urls from the torrent metadata file
     def __init__(self, torrent):
+        self.torrent = torrent;
         # the responding tracker instance for client
         self.client_tracker = None
         
@@ -432,6 +433,9 @@ class torrent_tracker():
             # append the connection status 
             self.trackers_connection_status.append(self.connection_not_attempted)
 
+        self.db_connection = sqlite3.connect('instance/bittorrent_data.sqlite')
+        self.db = self.db_connection.cursor()
+
     # the torrent tracker requests for the list of peers 
     # Note : function attempts to connect to tracker for given all the tracker
     #        instances and any tracker url reponse is recieved that is retunred
@@ -449,10 +453,12 @@ class torrent_tracker():
         # log the information about connecting to trackers
         self.trackers_logger.log(str(self))
         
+        # puts data into the database
+        self.database_log()
+
         # returns tracker instance for which successful connection was established
         return self.client_tracker
         
-
     
     # logs the tracker connections information 
     def __str__(self):
@@ -496,5 +502,28 @@ class torrent_tracker():
             trackers_table.rows.append([not_attempted_log, 'not attempted connection '])
 
         return str(trackers_table)
+    
+    def database_log(self):
+        # executing database query
+        tracker_url = None
+        connection_status = None
+        for i, status in enumerate(self.trackers_connection_status):
+            if(status == self.connection_success):
+                tracker_url = self.trackers_list[i].tracker_url
+                connection_status = 'Successful'
+            elif(status == self.connection_failure):
+                tracker_url = self.trackers_list[i].tracker_url
+                connection_status = 'Failure'
+            else:
+                tracker_url = self.trackers_list[i].tracker_url
+                connection_status = 'Not attempted'
+            self.db.execute("""
+                                insert into tracker_list 
+                                (torrent_id, tracker_url, connection_status)
+                                values (?, ?, ?)
+                            """, (self.torrent.client_request['torrent_id'],
+                                  tracker_url, connection_status))
+            self.db_connection.commit() 
+
 
 
