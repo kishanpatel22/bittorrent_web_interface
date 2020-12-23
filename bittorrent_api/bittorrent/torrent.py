@@ -96,14 +96,12 @@ class torrent():
     # Bitorrent web API
     def data(self):
         torrent_file_data = {
-            'File name'         : str(self.torrent_metadata.file_name),
-            'File size'         : str(round(self.torrent_metadata.file_size / (2 ** 20), 2)) + ' MB',
-            'Piece length'      : str(self.torrent_metadata.piece_length),
-            'Info hash'         : '20 Bytes file info hash value',
-            'Files'             : str(self.torrent_metadata.files),
-            'Number of Pieces'  : str(self.pieces_count),
-            'Client port'       : str(self.client_port),
-            'Client peer ID'    : str(self.peer_id)
+            'file_name'         : str(self.torrent_metadata.file_name),
+            'file_size'         : self.torrent_metadata.file_size / (2 ** 20),
+            'piece_length'      : self.torrent_metadata.piece_length,
+            'info_hash'         : '20 Bytes cryptic file info hash value',
+            'num_pieces'        : self.pieces_count,
+            'client_peer_id'    : self.peer_id.decode()
         } 
         return torrent_file_data
     

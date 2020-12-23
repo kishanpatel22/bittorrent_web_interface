@@ -18,8 +18,12 @@ from bittorrent.shared_file_handler import torrent_shared_file_handler
 # torrent logger module for execution logging
 from bittorrent.torrent_logger import *
 
+# for database connection
+import sqlite3
+
 TORRENT_FILE_PATH = 'torrent_file_path'
 DOWNLOAD_DIR_PATH = 'download_directory_path'
+TORRENT_ID        = 'torrent_id'
 
 """
     Torrent client would help interacting with the tracker server and
@@ -32,12 +36,14 @@ class bittorrent_client():
         reads the torrent file and creates torrent class object
     """
     def __init__(self, user_arguments):
+        # the torrent_id for the file to be downloaded
+        self.torrent_id = user_arguments[TORRENT_ID]
+
         # extract the torrent file path 
         torrent_file_path = user_arguments[TORRENT_FILE_PATH]
         
         # bittorrent client logger
         self.bittorrent_logger = torrent_logger('bittorrent', BITTORRENT_LOG_FILE, DEBUG)
-        self.bittorrent_logger.set_console_logging()
         
         self.bittorrent_logger.log('Reading ' + torrent_file_path + ' file ...')
 
@@ -47,7 +53,8 @@ class bittorrent_client():
         # decide whether the user want to download or seed the torrent
         self.client_request = {'seeding' : None,               'downloading': None,
                                'uploading rate' : sys.maxsize,  'downloading rate' : sys.maxsize,
-                               'max peers' : 5, 'AWS' : False}
+                               'max peers' : 5, 'AWS' : False,
+                               'torrent_id' : self.torrent_id}
        
         self.client_request['downloading'] = user_arguments[DOWNLOAD_DIR_PATH]
 
@@ -55,6 +62,24 @@ class bittorrent_client():
         self.torrent = torrent(self.torrent_info.get_data(), self.client_request)
          
         self.bittorrent_logger.log(str(self.torrent))
+        
+        self.db_connection = sqlite3.connect('instance/bittorrent_data.sqlite')
+        self.db = self.db_connection.cursor()
+        
+        torrent_file_data = self.torrent.data()
+        
+        self.db.execute("""
+            insert into torrent_file_data
+            (torrent_id, file_name, file_size, piece_length, info_hash, 
+            num_pieces, client_peer_id) values (?, ?, ?, ?, ?, ?, ?)
+            """, (self.torrent_id, 
+                  torrent_file_data['file_name'], 
+                  torrent_file_data['file_size'],
+                  torrent_file_data['piece_length'],
+                  torrent_file_data['info_hash'],
+                  torrent_file_data['num_pieces'],
+                  torrent_file_data['client_peer_id']))
+        self.db_connection.commit()
         
 
     """
@@ -145,15 +170,6 @@ class bittorrent_client():
         if self.client_request['seeding'] is not None:
             self.seed()
     
-
-    """
-        Bitorrent Web API torrent file reader response 
-    """
-    def torrent_file_data(self):
-        return self.torrent.data()
-
-
-
 
 
 

@@ -34,7 +34,7 @@ class BittorrentForm extends React.Component {
         super(props);
         this.state = {file: '', 
                       upload_status: null,
-                      torrent_id: 1,
+                      torrent_id: 0,
                       button_style : {
                             padding: '10px 20px',
                             marginLeft: '20%',
@@ -95,7 +95,7 @@ class BittorrentForm extends React.Component {
             body: torrent_request_data
         })
         .then((response) => {return response.json()})
-        .then((data) => {console.log(data)})
+        .then((data) => {this.setState({torrent_id : data.torrent_id})})
         
         this.setState({upload_status: 100});
     }

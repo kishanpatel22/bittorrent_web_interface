@@ -1,6 +1,9 @@
 import React, {useState, useEffect} from 'react'
 import BitTorrent from './Components/BitTorrent/BitTorrent'
-import TorrentFile from './Components/TorrentFile/TorrentFile'
+import TorrentFileData from './Components/TorrentFileData/TorrentFileData'
+import TrackerData from './Components/TrackerData/TrackerData'
+import SwarmData from './Components/SwarmData/SwarmData'
+import ActivityData from './Components/ActivityData/ActivityData'
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 
 /* We can write functions for creating HTML components
@@ -21,7 +24,14 @@ function App() {
         <Router>
             <div style={app_styles}>
                 <Route exact path="/" component={BitTorrent} />
-                <Route exact path="/torrent_file/:torrent_id" component={TorrentFile} />
+                <Route exact path="/torrent_file/:torrent_id" 
+                       component={TorrentFileData} />
+                <Route exact path="/torrent_file/:torrent_id/tracker_data" 
+                       component={TrackerData} />
+                <Route exact path="/torrent_file/:torrent_id/swarm_data"    
+                       component={SwarmData} />
+                <Route exact path="/torrent_file/:torrent_id/activity_data" 
+                       component={ActivityData} />
             </div>
         </Router>
     );
