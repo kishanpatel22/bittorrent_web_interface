@@ -63,25 +63,25 @@ class bittorrent_client():
          
         self.bittorrent_logger.log(str(self.torrent))
         
-        self.db_connection = sqlite3.connect('instance/bittorrent_data.sqlite')
-        self.db = self.db_connection.cursor()
+        db_connection = sqlite3.connect('instance/bittorrent_data.sqlite')
+        db = db_connection.cursor()
         
         torrent_file_data = self.torrent.data()
         
-        self.db.execute("""
-            insert into torrent_file_data
-            (torrent_id, tracker_list, file_name, file_size, piece_length, info_hash, 
-            num_pieces, client_peer_id) values (?, ?, ?, ?, ?, ?, ?, ?)
-            """, (self.torrent_id, 
-                  torrent_file_data['tracker_list'],
-                  torrent_file_data['file_name'], 
-                  torrent_file_data['file_size'],
-                  torrent_file_data['piece_length'],
-                  torrent_file_data['info_hash'],
-                  torrent_file_data['num_pieces'],
-                  torrent_file_data['client_peer_id']))
-        self.db_connection.commit()
-        
+        db.execute("""
+                        insert into torrent_file_data
+                        (torrent_id, tracker_list, file_name, file_size, piece_length, info_hash, 
+                        num_pieces, client_peer_id) values (?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (self.torrent_id, 
+                    torrent_file_data['tracker_list'],
+                    torrent_file_data['file_name'], 
+                    torrent_file_data['file_size'],
+                    torrent_file_data['piece_length'],
+                    torrent_file_data['info_hash'],
+                    torrent_file_data['num_pieces'],
+                    torrent_file_data['client_peer_id']))
+        db_connection.commit()
+        db_connection.close() 
 
     """
         functions helps in contacting the trackers requesting for 
@@ -108,17 +108,22 @@ class bittorrent_client():
         # get the peer data from the recieved from the tracker
         peers_data = self.active_tracker.get_peers_data()
             
-        if self.client_request['downloading'] != None:
-
-            # create swarm instance from the list of peers 
-            self.swarm = swarm(peers_data, self.torrent)
+        # create swarm instance from the list of peers 
+        self.swarm = swarm(peers_data, self.torrent)
+    
+        db_connection = sqlite3.connect('instance/bittorrent_data.sqlite')
+        db = db_connection.cursor()
         
-        if self.client_request['seeding'] != None:
-            # no need for peers recieved from tracker
-            peers_data['peers'] = []
-            # create swarm instance for seeding 
-            self.swarm = swarm(peers_data, self.torrent)
+        for peer_ip, peer_port in peers_data['peers']:
+            db.execute("""
+                            insert into swarm 
+                            (torrent_id, peer_ip, peer_port)
+                            values (?, ?, ?)
+                       """, (self.torrent_id, peer_ip, peer_port))
+            db_connection.commit()
 
+        db_connection.close()
+        
     """
         function helps in uploading the torrent file that client has 
         downloaded completely, basically the client becomes the seeder
@@ -177,6 +182,9 @@ class bittorrent_client():
     def start_downloading(self):
         # first thing is to contact the trackers        
         self.contact_trackers() 
-
+        # initialize the swam data
+        self.initialize_swarm()
+        # start downloading
+        self.download()
 
 

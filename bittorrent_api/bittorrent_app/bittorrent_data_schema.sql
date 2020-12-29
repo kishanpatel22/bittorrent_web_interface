@@ -35,6 +35,7 @@ CREATE TABLE swarm (
     peer_ip TEXT,
     peer_port INTEGER,
     num_downloaded_pieces INTEGER default 0 check(num_downloaded_pieces >= 0),
+    download_rate REAL default 0.0,
     PRIMARY KEY (torrent_id, peer_ip, peer_port),
     FOREIGN KEY (torrent_id) REFERENCES torrent (torrent_id) ON DELETE CASCADE
 );

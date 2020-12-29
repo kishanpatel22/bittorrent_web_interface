@@ -9,6 +9,8 @@ python-dotenv = "*"
 bencodepy = "*"
 beautifultable = "*"
 requests = "*"
+flask-socketio = "*"
+flask-sockets = "*"
 
 [packages]
 

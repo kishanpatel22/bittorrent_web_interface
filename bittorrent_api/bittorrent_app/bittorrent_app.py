@@ -1,21 +1,17 @@
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, current_app
 )
-
 from threading import *
 import os
 import base64
-
 from werkzeug.exceptions import abort
 from bittorrent_app.db import get_db
-
 from bittorrent.client import *
 
 bp = Blueprint('bittorrent_app', __name__)
 
 # For multiple downloads the data structure used is queue
 kp_bittorrent_clients = []
-
 
 @bp.route('/bittorrent-api/')
 def index():
@@ -95,7 +91,12 @@ def tracker_data(torrent_id):
 # gets the swarm information for the pariticular torrent id
 @bp.route('/bittorrent-api/torrent_file/<int:torrent_id>/swarm_data', methods=['GET'])
 def swarm_data(torrent_id):
-    return {'swarm_data' : 'It will contain the swarm information !'}
+    db = get_db()
+    torrent_swarm_data = db.execute("""
+                                        select * from swarm where 
+                                        torrent_id = ? order by download_rate desc 
+                                    """, (torrent_id, )).fetchall()
+    return {'swarm_data' : [dict(swarm_data) for swarm_data in torrent_swarm_data]}
 
 
 # gets the activity logs for the pariticular torrent id

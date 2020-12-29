@@ -22,8 +22,9 @@ class TrackerData extends React.Component {
             }
         }).then((data) => {
             this.setState({data: data});
-            this.setState({loading: false});
-            console.log(this.state.data.tracker_data[0])
+            if(data.tracker_data.length !== 0) {
+                this.setState({loading: false})
+            }
         })
     }
     
@@ -31,7 +32,8 @@ class TrackerData extends React.Component {
         if(this.state.loading) {
             return (
                 <div>
-                    <p> Still loading the page ! </p>
+                    <NavBar torrent_id={this.state.torrent_id} nav_bar_id={3}  />
+                    <p> Still data pending </p>
                 </div>
             )
         } else {

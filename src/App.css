@@ -1,1 +1,17 @@
+.peer-enter {
+  opacity: 0.01;
+}
 
+.peer-enter.peer-enter-active {
+  opacity: 1;
+  transition: opacity 500ms ease-in;
+}
+
+.peer-leave {
+  opacity: 1;
+}
+
+.peer-leave.peer-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}

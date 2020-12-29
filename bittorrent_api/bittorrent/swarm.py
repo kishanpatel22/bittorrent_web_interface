@@ -1,6 +1,7 @@
 import sys
 import time
 import random
+import sqlite3
 from copy import deepcopy
 from datetime import timedelta
 from threading import *
@@ -67,6 +68,7 @@ class swarm():
         
         # swarm lock for required for updating the global state
         self.swarm_lock = Lock()
+    
 
     """
         Updates bitfield count values obtained from peers in swarm
@@ -200,6 +202,27 @@ class swarm():
             self.torrent.statistics.update_end_time(end_time)
             self.torrent.statistics.update_download_rate(piece, self.torrent.piece_length)
             self.torrent_stats_logger.log(self.torrent.statistics.get_download_statistics())
+
+            db_connection = sqlite3.connect('instance/bittorrent_data.sqlite')
+            db = db_connection.cursor()
+            # database updation
+            db.execute("""
+                            update swarm set download_rate = (?),
+                            num_downloaded_pieces = num_downloaded_pieces + 1 
+                            where torrent_id = (?) and peer_ip = (?) and peer_port = (?)
+                       """, (self.peers_list[peer_index].torrent.statistics.download_rate,
+                             self.torrent.client_request['torrent_id'],
+                             self.peers_list[peer_index].IP,
+                             self.peers_list[peer_index].port))
+            db_connection.commit() 
+            
+            db.execute("""
+                            update torrent set download_percentage = (?)
+                            where torrent_id = (?)
+                       """,(self.torrent.statistics.file_downloading_percentage, 
+                            self.torrent.client_request['torrent_id']))
+            db_connection.commit() 
+
             # release the lock after downloading
             self.swarm_lock.release() 
 

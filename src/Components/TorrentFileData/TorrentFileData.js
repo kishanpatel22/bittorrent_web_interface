@@ -49,7 +49,8 @@ class TorrentFileData extends React.Component {
         if(this.state.loading) {
             return (
                 <div>
-                    <p> Still loading the page ! </p>
+                    <NavBar torrent_id={this.state.torrent_id} nav_bar_id={2}  />
+                    <p> Still data pending </p>
                 </div>
             )
         } else {

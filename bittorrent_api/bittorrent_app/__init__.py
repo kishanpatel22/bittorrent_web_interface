@@ -33,5 +33,5 @@ def create_app(test_config=None):
     from . import bittorrent_app
     app.register_blueprint(bittorrent_app.bp)
     app.add_url_rule('/', endpoint='index')
-
+    
     return app
