@@ -182,6 +182,14 @@ class swarm():
         download_log += 'Happy Bittorrenting !'
         self.torrent_stats_logger.log(download_log)
 
+        db_connection = sqlite3.connect('instance/bittorrent_data.sqlite')
+        db = db_connection.cursor()
+        db.execute("""
+                    update torrent set swarm_status = 1 where torrent_id = (?)
+                   """, (self.torrent.client_request['torrent_id'], ))
+        db_connection.commit()
+        db_connection.close()
+
     """
         function downloads piece given the peer index and updates the 
         of downloaded pieces from the peers in swarm
@@ -217,11 +225,13 @@ class swarm():
             db_connection.commit() 
             
             db.execute("""
-                            update torrent set download_percentage = (?)
+                            update torrent set download_percentage = (?), download_time = (?)
                             where torrent_id = (?)
                        """,(self.torrent.statistics.file_downloading_percentage, 
+                            str(self.torrent.statistics.expected_download_completion_time),
                             self.torrent.client_request['torrent_id']))
             db_connection.commit() 
+            db_connection.close()
 
             # release the lock after downloading
             self.swarm_lock.release() 

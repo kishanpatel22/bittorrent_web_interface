@@ -7,7 +7,10 @@ DROP TABLE IF EXISTS torrent_activity;
 CREATE TABLE torrent (
     torrent_id INTEGER PRIMARY KEY AUTOINCREMENT,
     torrent_file_name TEXT UNIQUE,
-    download_percentage REAL default 0.0
+    download_percentage REAL default 0.0,
+    download_time TEXT default "INF",
+    tracker_status INTEGER default 0 check(tracker_status <= 1),
+    swarm_status INTEGER default 0 check(swarm_status <= 1)
 );
 
 CREATE TABLE torrent_file_data (

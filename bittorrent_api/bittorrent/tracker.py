@@ -469,6 +469,13 @@ class torrent_tracker():
                                     tracker_url, connection_status))
                 self.db_connection.commit() 
         
+        self.db.execute("""
+                            update torrent set tracker_status = 1
+                            where torrent_id = (?)
+                        """, (self.torrent.client_request['torrent_id'], ))
+        self.db_connection.commit() 
+        self.db_connection.close()
+
         # log the information about connecting to trackers
         self.trackers_logger.log(str(self))
         

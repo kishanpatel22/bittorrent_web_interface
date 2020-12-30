@@ -5,6 +5,7 @@ import TrackerData from './Components/TrackerData/TrackerData'
 import SwarmData from './Components/SwarmData/SwarmData'
 import ActivityData from './Components/ActivityData/ActivityData'
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 /* We can write functions for creating HTML components
  * fuctions returns the HTML in form of JSX which will be rendered
@@ -15,8 +16,7 @@ import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 function App() {
     /* logic part of the app component */
     const app_styles = {
-        background  : '#000F23', 
-        margin      : '2%'
+        backgroundColor : '#000F23', 
     }
     
     /* returns JSX  */

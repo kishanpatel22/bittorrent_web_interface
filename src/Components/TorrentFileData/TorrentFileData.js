@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import NavBar from '../NavBar/NavBar'
-import { Table } from 'react-bootstrap'
+import { Table, Spinner } from 'react-bootstrap'
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 
@@ -24,12 +24,15 @@ class TorrentFileData extends React.Component {
     constructor(props) {
         super(props);
         let torrent_id = this.props.match.params.torrent_id
-        this.state = { torrent_id: torrent_id, data:{}, loading:true};
+        this.state = { torrent_id: torrent_id, data:{}, loading:true, status: false};
         this.getTorrentFileData = this.getTorrentFileData.bind(this)
+        this.dynamic_torrent_data = this.dynamic_torrent_data.bind(this)
+        this.interval_id = null
     }
 
     componentDidMount() {
         this.getTorrentFileData();
+        this.interval_id = setInterval(this.dynamic_torrent_data, 1000);
     }
     
     getTorrentFileData() {
@@ -39,18 +42,35 @@ class TorrentFileData extends React.Component {
                 return response.json()
             }
         }).then((data) => {
-            this.setState({data: data});
-            this.setState({loading: false});
-            console.log(data)
+            if(data !== undefined) {
+                this.setState({data: data});
+                this.setState({loading: false});
+                if(this.state.data.torrent_data.swarm_status) {
+                    this.setState({status: true});
+                    clearInterval(this.interval_id)
+                }
+            }
         })
     }
     
+    dynamic_torrent_data() {
+        if(!this.state.status) {
+            this.getTorrentFileData()
+        } else {
+            clearInterval(this.interval_id)
+        }
+    }
+
     render() {
         if(this.state.loading) {
             return (
                 <div>
                     <NavBar torrent_id={this.state.torrent_id} nav_bar_id={2}  />
-                    <p> Still data pending </p>
+                    <div style={{ marginLeft: '45%' }}>
+                        <Spinner animation="grow" variant="info" /> 
+                        <Spinner animation="grow" variant="info" /> 
+                        <Spinner animation="grow" variant="info" /> 
+                    </div>
                 </div>
             )
         } else {
@@ -100,13 +120,16 @@ class TorrentFileData extends React.Component {
                         </div>
                         <div style={download_style}>
                             <h2 style={{color:'blue',textAlign:'center'}}> 
-                                {this.state.data.torrent_data.torrent_file_name} File Download Progress 
+                                File Download Progress 
                             </h2>  
                             <div style={{width:'70%', height:'70%', margin:'auto' }}>
                                 <CircularProgressbar 
                                     value={this.state.data.torrent_data.download_percentage} 
                                     text={`${this.state.data.torrent_data.download_percentage}%`} />;
                             </div>
+                            <h4 style={{ marginTop: '5%',marginLeft:'2%',color:'blue',textAlign:'left'}}>
+                                Expected Time : {this.state.data.torrent_data.download_time}
+                            </h4>
                         </div>
                     </div>
                 </div>

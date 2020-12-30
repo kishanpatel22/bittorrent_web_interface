@@ -85,7 +85,13 @@ def tracker_data(torrent_id):
                                         select * from tracker_list where 
                                         torrent_id = ?
                                       """, (torrent_id, )).fetchall()
-    return {'tracker_data' : [dict(tracker_data) for tracker_data in torrent_tracker_data]}
+    
+    tracker_status = db.execute("""
+                                    select tracker_status from torrent where
+                                    torrent_id = ?
+                               """, (torrent_id, )).fetchone()[0]
+    return {'tracker_data' : [dict(tracker_data) for tracker_data in torrent_tracker_data],
+            'tracker_status' : tracker_status }
 
 
 # gets the swarm information for the pariticular torrent id
@@ -96,14 +102,20 @@ def swarm_data(torrent_id):
                                         select * from swarm where 
                                         torrent_id = ? order by download_rate desc 
                                     """, (torrent_id, )).fetchall()
-    return {'swarm_data' : [dict(swarm_data) for swarm_data in torrent_swarm_data]}
+        
+    swarm_status = db.execute("""
+                                select swarm_status from torrent where
+                                torrent_id = ?
+                              """, (torrent_id, )).fetchone()[0]
 
+
+    return {'swarm_data' : [dict(swarm_data) for swarm_data in torrent_swarm_data],
+            'swarm_status' : swarm_status}
 
 # gets the activity logs for the pariticular torrent id
 @bp.route('/bittorrent-api/torrent_file/<int:torrent_id>/activity_data', methods=['GET'])
 def activity_data(torrent_id):
     return {'activity_data' : 'It will contain all the activity data !'}
-
 
 
 

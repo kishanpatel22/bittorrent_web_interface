@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import NavBar from '../NavBar/NavBar.js'
-import { Fade } from 'react-bootstrap'
+import { Fade, Spinner } from 'react-bootstrap'
 
 const div_style = {
     width : '240px', 
@@ -23,13 +23,15 @@ class SwarmData extends React.Component {
     constructor(props) {
         super(props);
         let torrent_id = this.props.match.params.torrent_id
-        this.state = { torrent_id: torrent_id, data:{}, loading:true};
+        this.state = { torrent_id: torrent_id, data:{}, loading:true, status : false};
         this.getSwarmData = this.getSwarmData.bind(this)
+        this.dynamic_swarm_data = this.dynamic_swarm_data.bind(this)
+        this.interval_id = null
     }
 
     componentDidMount() {
-        this.getSwarmData();
-        setInterval(this.getSwarmData, 10000)
+        this.getSwarmData()
+        this.interval_id = setInterval(this.dynamic_swarm_data, 3000);
     }
     
     getSwarmData() {
@@ -39,20 +41,39 @@ class SwarmData extends React.Component {
                 return response.json()
             }
         }).then((data) => {
-            this.setState({data: data})
-            console.log(data)
-            if(data.swarm_data.length !== 0) {
-                this.setState({loading: false})
+            if(data !== undefined) {
+                if(data.swarm_data.length !== 0) {
+                    this.setState({data: data})
+                    this.setState({loading: false})
+                }
+                if(data.swarm_status) {
+                    this.setState({status: true})
+                    clearInterval(this.interval_id)
+                } 
             }
         })
     }
-    
+  
+    dynamic_swarm_data() {
+        console.log(this.state.status)
+        if(!this.state.status) {
+            console.log('Trying')
+            this.getSwarmData() 
+        } else {
+            console.log('Not Trying')
+        }
+    }
+
     render() {
         if(this.state.loading) {
             return (
                 <div>
                     <NavBar torrent_id={this.state.torrent_id} nav_bar_id={4}  />
-                    <p> Still data pending </p>
+                    <div style={{ marginLeft: '45%' }}>
+                        <Spinner animation="grow" variant="info" /> 
+                        <Spinner animation="grow" variant="info" /> 
+                        <Spinner animation="grow" variant="info" /> 
+                    </div>
                 </div>
             )
         } else {

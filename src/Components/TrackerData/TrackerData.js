@@ -1,17 +1,21 @@
 import React, {useState, useEffect} from 'react'
 import NavBar from '../NavBar/NavBar.js'
-import { Table } from 'react-bootstrap'
+import { Table, Spinner, Button } from 'react-bootstrap'
+import { AnimateOnChange } from 'react-animation'
 
 class TrackerData extends React.Component {
     constructor(props) {
         super(props);
         let torrent_id = this.props.match.params.torrent_id
-        this.state = { torrent_id: torrent_id, data:{}, loading:true};
+        this.interval_id = null
+        this.state = {torrent_id: torrent_id, data:{}, loading:true, status:false}
         this.getTrackerData = this.getTrackerData.bind(this)
+        this.dynamic_tracker_data = this.dynamic_tracker_data.bind(this)
     }
 
     componentDidMount() {
-        this.getTrackerData();
+        this.getTrackerData()
+        this.interval_id = setInterval(this.dynamic_tracker_data, 4000);
     }
     
     getTrackerData() {
@@ -21,19 +25,47 @@ class TrackerData extends React.Component {
                 return response.json()
             }
         }).then((data) => {
-            this.setState({data: data});
-            if(data.tracker_data.length !== 0) {
-                this.setState({loading: false})
+            if(data !== undefined) {
+                if(data.tracker_data.length !== 0) {
+                    this.setState({data: data});
+                    this.setState({loading: false})
+                } 
+                if(data.tracker_status) {
+                    this.setState({status: true})
+                    clearInterval(this.interval_id)
+                } 
             }
         })
     }
     
+    dynamic_tracker_data() {
+        if(!this.state.status) {
+            console.log('Trying')
+            this.getTrackerData() 
+        } else {
+            console.log('Not trying')
+        }
+    }
+
     render() {
+        var tracker_status = <span></span>;
+        if(!this.state.status) {
+            tracker_status = <div style={{ marginLeft: '45%' }}>
+                                <Spinner animation="grow" variant="info" /> 
+                                <Spinner animation="grow" variant="info" /> 
+                                <Spinner animation="grow" variant="info" /> 
+                            </div>;
+        } 
+
         if(this.state.loading) {
             return (
                 <div>
                     <NavBar torrent_id={this.state.torrent_id} nav_bar_id={3}  />
-                    <p> Still data pending </p>
+                    <div style={{ marginLeft: '45%' }}>
+                        <Spinner animation="grow" variant="info" /> 
+                        <Spinner animation="grow" variant="info" /> 
+                        <Spinner animation="grow" variant="info" /> 
+                    </div>
                 </div>
             )
         } else {
@@ -59,6 +91,7 @@ class TrackerData extends React.Component {
                                 </tbody>
                             </Table>
                         </div>
+                        {tracker_status} 
                     </div>
                 </div>
             )
